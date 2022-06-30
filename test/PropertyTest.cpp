@@ -75,6 +75,29 @@ TEST(PropertyTest, PostSetter){
     }
     ASSERT_EQ(postsetter_executed, 4);
     ASSERT_EQ(postvalue, 4);
+
+    std::stringstream ss;
+    Property<std::string> prop2 { "Property", {}, [&](const std::string &new_value) { ss << new_value; } }; // Property
+
+    prop2.set("Property2"); // PropertyProperty2
+
+    using namespace std::string_literals;
+    prop2.set("Property3"s); // PropertyProperty2Property3
+
+    prop2 = "Property4"; // PropertyProperty2Property3Property4
+
+    std::string text { "Property5" };
+    prop2.set(text); // PropertyProperty2Property3Property4Property5
+    prop2.set(std::move(text)); // PropertyProperty2Property3Property4Property5Property5
+
+    {
+        decltype(prop2)::Transaction t { prop2 };
+        t.data.pop_back();
+        t.data.pop_back();
+    }
+    // PropertyProperty2Property3Property4Property5Property5Propert
+
+    EXPECT_EQ(ss.str(), "PropertyProperty2Property3Property4Property5Property5Propert"s);
 }
 
 TEST(PropertyTest, ConstructionTest){

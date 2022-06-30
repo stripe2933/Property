@@ -29,7 +29,7 @@ public:
     template <typename TPP> requires std::is_convertible_v<TPP, T>
     explicit Property(TPP &&value, const std::function<void(const T&)>& presetter = {}, const std::function<void(const T&)>& postsetter = {}) : data { std::forward<T>(value) }, presetter { presetter }, postsetter { postsetter } { 
         if (postsetter){
-            postsetter(value);
+            postsetter(data);
         }
     }
 
