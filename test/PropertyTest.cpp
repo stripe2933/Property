@@ -3,6 +3,8 @@
 
 #include <Property.hpp>
 
+using namespace std::string_literals;
+
 TEST(PropertyTest, GetSet){
     Property<int> prop { 3 };
     EXPECT_EQ(prop.get(), 3);
@@ -81,7 +83,6 @@ TEST(PropertyTest, PostSetter){
 
     prop2.set("Property2"); // PropertyProperty2
 
-    using namespace std::string_literals;
     prop2.set("Property3"s); // PropertyProperty2Property3
 
     prop2 = "Property4"; // PropertyProperty2Property3Property4
@@ -97,10 +98,18 @@ TEST(PropertyTest, PostSetter){
     }
     // PropertyProperty2Property3Property4Property5Property5Propert
 
-    EXPECT_EQ(ss.str(), "PropertyProperty2Property3Property4Property5Property5Propert"s);
+    const std::string text2 { "Property6" };
+    prop2.set(text2); // PropertyProperty2Property3Property4Property5Property5PropertProperty6
+
+    EXPECT_EQ(ss.str(), "PropertyProperty2Property3Property4Property5Property5PropertProperty6"s);
 }
 
 TEST(PropertyTest, ConstructionTest){
+    std::string text { "my text" };
+    Property<std::string> prop { text };
+
+    EXPECT_EQ(prop.get(), "my text"s);
+
     // TODO: check unintended copy construction
 
     struct Foo{

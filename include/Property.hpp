@@ -27,7 +27,7 @@ public:
 
     Property(const std::function<void(const T&)>& presetter = {}, const std::function<void(const T&)>& postsetter = {}) : presetter { presetter }, postsetter { postsetter} { }
     template <typename TPP> requires std::is_convertible_v<TPP, T>
-    explicit Property(TPP &&value, const std::function<void(const T&)>& presetter = {}, const std::function<void(const T&)>& postsetter = {}) : data { std::forward<T>(value) }, presetter { presetter }, postsetter { postsetter } { 
+    explicit Property(TPP &&value, const std::function<void(const T&)>& presetter = {}, const std::function<void(const T&)>& postsetter = {}) : data { std::forward<const T>(value) }, presetter { presetter }, postsetter { postsetter } { 
         if (postsetter){
             postsetter(data);
         }
@@ -46,7 +46,7 @@ public:
         if (presetter){
             presetter(data);
         }
-        data = std::forward<T>(value); 
+        data = std::forward<const T>(value); 
         if (postsetter){
             postsetter(data);
         }
