@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "PropertyTransaction.hpp"
 
 template <typename T>
