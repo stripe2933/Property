@@ -2,13 +2,13 @@
 
 #include "Property.hpp"
 
-template <typename T>
+template <typename T, bool CallbackAtConstruction>
 class Property; // Forward declaration for PropertyTransaction.
 
-template <typename T>
+template <typename T, bool CallbackAtConstruction>
 class PropertyTransaction{
 public:
-    explicit PropertyTransaction(Property<T> &property) : property { property }, data { property.data } { }
+    explicit PropertyTransaction(Property<T, CallbackAtConstruction> &property) : property { property }, data { property.data } { }
     ~PropertyTransaction() { 
         if (property.callback){
             property.callback(data);
@@ -18,10 +18,10 @@ public:
     T &data; // Access this member variable to modify the property data.
 
     // This copy/move construcrors and assign operator are deleted.
-    PropertyTransaction(const PropertyTransaction<T>&) = delete;
-    PropertyTransaction(PropertyTransaction<T>&&) = delete;
-    PropertyTransaction<T> &operator=(const PropertyTransaction<T>&) = delete;
+    PropertyTransaction(const PropertyTransaction<T, CallbackAtConstruction>&) = delete;
+    PropertyTransaction(PropertyTransaction<T, CallbackAtConstruction>&&) = delete;
+    PropertyTransaction<T, CallbackAtConstruction> &operator=(const PropertyTransaction<T, CallbackAtConstruction>&) = delete;
 
 private:
-    Property<T> &property;
+    Property<T, CallbackAtConstruction> &property;
 };

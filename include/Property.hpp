@@ -4,18 +4,24 @@
 
 #include "PropertyTransaction.hpp"
 
-template <typename T>
+template <typename T, bool CallbackAtConstruction>
 class PropertyTransaction;
 
-template <typename T>
+template <typename T, bool CallbackAtConstruction = true>
 class Property{
 public:
     //////////////////////////////////////////////////
     /// Typedefs
     //////////////////////////////////////////////////
 
-    using Transaction = PropertyTransaction<T>;
+    using Transaction = PropertyTransaction<T, CallbackAtConstruction>;
     using CallbackType = std::function<void(const T&)>;
+
+    //////////////////////////////////////////////////
+    /// Fields
+    //////////////////////////////////////////////////
+
+    const CallbackType callback;
 
     //////////////////////////////////////////////////
     /// Constructors
@@ -23,7 +29,9 @@ public:
 
     template <typename... TPP, typename CallbackPP> requires std::is_convertible_v<CallbackPP, CallbackType>
     Property(CallbackPP &&callback, TPP&&... value) : callback { std::forward<CallbackPP>(callback) }, data { std::forward<TPP>(value)... } { 
-        callback(data);
+        if constexpr (CallbackAtConstruction){
+            callback(data);
+        }
     }
 
     template <typename... TPP>
@@ -53,8 +61,7 @@ public:
     Property<T> &operator=(TPP &&value) noexcept { set(std::forward<T>(value)); return *this; }
 
 private:
-    CallbackType callback;
     T data;
 
-    friend PropertyTransaction<T>;
+    friend Transaction;
 };
