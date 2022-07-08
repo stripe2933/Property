@@ -60,6 +60,11 @@ public:
     template <typename TPP>
     Property<T, CallbackAtConstruction> &operator=(TPP &&value) noexcept { set(std::forward<T>(value)); return *this; }
 
+    /**
+     * @brief execute callback with current data.
+     */
+    void executeCallback() { callback(data); }
+
 private:
     T data;
 
