@@ -58,7 +58,7 @@ public:
     }
 
     template <typename TPP>
-    Property<T> &operator=(TPP &&value) noexcept { set(std::forward<T>(value)); return *this; }
+    Property<T, CallbackAtConstruction> &operator=(TPP &&value) noexcept { set(std::forward<T>(value)); return *this; }
 
 private:
     T data;
