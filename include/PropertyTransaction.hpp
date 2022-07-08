@@ -8,14 +8,10 @@ class Property; // Forward declaration for PropertyTransaction.
 template <typename T>
 class PropertyTransaction{
 public:
-    explicit PropertyTransaction(Property<T> &property) : property { property }, data { property.data } { 
-        if (property.presetter){
-            property.presetter(data);
-        }
-    }
+    explicit PropertyTransaction(Property<T> &property) : property { property }, data { property.data } { }
     ~PropertyTransaction() { 
-        if (property.postsetter){
-            property.postsetter(data);
+        if (property.callback){
+            property.callback(data);
         }
     }
 

@@ -9,31 +9,25 @@ class PropertyTransaction;
 
 template <typename T>
 class Property{
-private:
-    std::function<void(const T&)> presetter;
-    std::function<void(const T&)> postsetter;
-    T data;
-
-    friend PropertyTransaction<T>;
-
 public:
     //////////////////////////////////////////////////
     /// Typedefs
     //////////////////////////////////////////////////
 
     using Transaction = PropertyTransaction<T>;
+    using CallbackType = std::function<void(const T&)>;
 
     //////////////////////////////////////////////////
     /// Constructors
     //////////////////////////////////////////////////
 
-    Property(const std::function<void(const T&)>& presetter = {}, const std::function<void(const T&)>& postsetter = {}) : presetter { presetter }, postsetter { postsetter} { }
-    template <typename TPP> requires std::is_convertible_v<TPP, T>
-    explicit Property(TPP &&value, const std::function<void(const T&)>& presetter = {}, const std::function<void(const T&)>& postsetter = {}) : data { std::forward<const T>(value) }, presetter { presetter }, postsetter { postsetter } { 
-        if (postsetter){
-            postsetter(data);
-        }
+    template <typename... TPP, typename CallbackPP> requires std::is_convertible_v<CallbackPP, CallbackType>
+    Property(CallbackPP &&callback, TPP&&... value) : callback { std::forward<CallbackPP>(callback) }, data { std::forward<TPP>(value)... } { 
+        callback(data);
     }
+
+    template <typename... TPP>
+    Property(TPP&&... value) : data { std::forward<TPP>(value)... } { }
 
     //////////////////////////////////////////////////
     /// Getter and Setters
@@ -43,17 +37,24 @@ public:
         return data;
     }
 
-    template <typename TPP> requires std::is_convertible_v<TPP, T>
+    template <typename TPP>
     void set(TPP &&value) noexcept { 
-        if (presetter){
-            presetter(data);
+        data = std::forward<TPP>(value); 
+        if (callback){
+            callback(data);
         }
-        data = std::forward<const T>(value); 
-        if (postsetter){
-            postsetter(data);
-        }
+    }
+
+    Transaction getTransaction() noexcept {
+        return Transaction { *this };
     }
 
     template <typename TPP>
     Property<T> &operator=(TPP &&value) noexcept { set(std::forward<T>(value)); return *this; }
+
+private:
+    CallbackType callback;
+    T data;
+
+    friend PropertyTransaction<T>;
 };
